@@ -1,21 +1,41 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import {
+    BrowserRouter as Router,
+    Route,
+    Link
+} from "react-router-dom";
+import {HomeView} from "./views/HomeView";
+import {FitterView} from "./views/FitterView";
+import {applyMiddleware, createStore} from "redux";
+import {Provider} from "react-redux";
+import createSagaMiddleware from "redux-saga";
+import {appStore} from "./data/store/index";
+import rootSaga from "./data/sagas/index";
+import {Header} from "./components/header/Header";
+import {AppContainer} from "./components/root/containers/AppContainer";
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
-}
+const sagaMiddleware = createSagaMiddleware();
 
-export default App;
+const store = createStore(
+    appStore,
+    applyMiddleware(sagaMiddleware)
+);
+
+sagaMiddleware.run(rootSaga);
+
+const App = () => (
+    <Provider store={store}>
+        <Router>
+            <AppContainer>
+                <Header />
+
+                <Route exact path="/" component={HomeView}/>
+                <Route path="/fitter" component={FitterView}/>
+            </AppContainer>
+        </Router>
+    </Provider>
+);
+
+export {
+    App
+};
